@@ -4,6 +4,11 @@
 #include <fcntl.h>
 #include <unistd.h>
 #pragma pack ( 1 )
+
+#define height 4
+#define width 4
+#define bytesperpixel 3
+
 typedef struct{
   u_int16_t Signature; // magic: 0x42 0x4D
   u_int32_t FileSize;
@@ -27,8 +32,8 @@ typedef struct{
 
 typedef struct{
   union{
-  char data[600][800][3];
-  char datab[600*800*3];
+  char data[height][width][bytesperpixel];
+  char datab[height*width*bytesperpixel];
   };
 }PixelData_t;
 
@@ -38,7 +43,7 @@ typedef struct{
   PixelData_t pixeldata;
 }BMP_t;
 
-
+void putpixel(BMP_t* image,int x, int y, char red, char green, char blue);
 int main(void)
 {
 
@@ -51,10 +56,10 @@ int main(void)
   image.header.reserved  = 0;
   image.header.DataOffset= sizeof(Header_t) + sizeof(InfoHeader_t);
   image.infoheader.Size = sizeof(InfoHeader_t);
-  image.infoheader.Width = 800;
-  image.infoheader.Height= 600;
+  image.infoheader.Width = width;
+  image.infoheader.Height= height;
   image.infoheader.Planes = 1;
-  image.infoheader.BitsPerPixel = 24;
+  image.infoheader.BitsPerPixel = bytesperpixel*8;
   image.infoheader.Compression = 0;
   image.infoheader.ImageSize = 0;
   image.infoheader.XpixelsPerMeter = 0;
@@ -69,13 +74,19 @@ int main(void)
   }
   printf("fd: %d\n", fd);
 
-  for(i=0; i<800*600*3; i++)
+  for(i=0; i<sizeof(image.pixeldata); i++)
   {
-    image.pixeldata.datab[i]=255;
+    image.pixeldata.datab[i]=0;
   }
-  image.pixeldata.data[300][400][0] = 0;
-  image.pixeldata.data[300][400][1] = 0;
-  image.pixeldata.data[300][400][2] = 0;
+ 
+  putpixel(&image, 0, 0, 255, 255, 255);
+  putpixel(&image, 0, 1, 0, 0, 0);
+  putpixel(&image, 0, 2, 255, 255, 255);
+  putpixel(&image, 0, 3, 0, 0, 0);
+
+  putpixel(&image, 1, 0, 0, 0, 0);
+  putpixel(&image, 2, 0, 255, 255, 255);
+  putpixel(&image, 3, 0, 0, 0, 0);
   if((bytes=write(fd, &image.header, sizeof(image))) < sizeof(image))
   {
      printf("bytes written: %d. Size: %ld\n", bytes, sizeof(image));
@@ -95,4 +106,9 @@ int main(void)
   }
   return 0;
 }
-
+void putpixel(BMP_t* image,int x, int y, char red, char green, char blue)
+{
+  image->pixeldata.data[y][x][0] = blue;
+  image->pixeldata.data[y][x][1] = green;
+  image->pixeldata.data[y][x][2] = red;
+}
