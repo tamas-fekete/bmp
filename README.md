@@ -1,1 +1,2 @@
-bmp.c: this program creates an uncompressed bitmap image file.
+compile: gcc bmp.c canvas.c
+Very very simple raytracer draws two spheres on the screen.
