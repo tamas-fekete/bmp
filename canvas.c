@@ -1,19 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "canvas.h"
-typedef struct{
-  char red;
-  char green;
-  char blue;
-}color_t;
 
-typedef struct{
- float sx;
- float sy;
- float sz;
- float r;
- color_t color;
-}sphere_t;
 typedef struct{
   float x1;
   float y1;
@@ -83,20 +71,14 @@ int SaveBmpFile(int fd, BMP_t* image)
   return 0;
 }
 
-int DrawSphere(BMP_t *image, float sx, float sy, float sz, float r)
+int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSpheres)
 {
-  int i, j;
+  int i, j, k;
   line_t line;
-  sphere_t sphere;
   line.x1 = 1.732f;
   line.y1 = 1.299f;
   line.z1 = 0.0f;
   line.z2 = 1.0f;
-
-  sphere.sx = sx;
-  sphere.sy = sy;
-  sphere.sz = sz;
-  sphere.r  = r;
 
 
   for(i=0; i<PIXEL_HEIGHT; i++)
@@ -105,13 +87,17 @@ int DrawSphere(BMP_t *image, float sx, float sy, float sz, float r)
     {
       line.x2 = ((float)j+0.5)*CANVAS_WIDTH/PIXEL_WIDTH;
       line.y2 =  ((float)i+0.5)*CANVAS_HEIGHT/PIXEL_HEIGHT;
-      if(LineIntersectsSphere(&line, &sphere))
+      for(k=0; k<numberOfSpheres; k++)
       {
-        putpixel(image, j, PIXEL_HEIGHT-i-1, 0xA4, 0x69, 0xFF);
-      }
-      else
-      {
-        putpixel(image, j, PIXEL_HEIGHT-i-1, 0xFF, 0xFF, 0xFF);
+        if(LineIntersectsSphere(&line, sphere[k]))
+        {
+         putpixel(image, j, PIXEL_HEIGHT-i-1, sphere[k]->color.red, sphere[k]->color.green, sphere[k]->color.blue);
+          break;
+        }
+        else
+        {
+          putpixel(image, j, PIXEL_HEIGHT-i-1, 0xFF, 0xFF, 0xFF);
+        }
       }
     }
   }
