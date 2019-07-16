@@ -47,7 +47,21 @@ typedef struct{
   PixelData_t pixeldata;
 }BMP_t;
 
-int DrawSphere(BMP_t *image, float sx, float sy, float sz, float r);
+typedef struct{
+  char red;
+  char green;
+  char blue;
+}color_t;
+
+typedef struct{
+ float sx;
+ float sy;
+ float sz;
+ float r;
+ color_t color;
+}sphere_t;
+
+int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSphere);
 int SaveBmpFile(int fd, BMP_t* image);
 int CreateBmpFile(char *name);
 BMP_t* CreateCanvas(void);
