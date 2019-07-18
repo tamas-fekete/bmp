@@ -8,8 +8,8 @@
 #define PIXEL_HEIGHT 768u
 #define PIXEL_WIDTH 1024u
 
-#define CANVAS_HEIGHT  2.598f
-#define CANVAS_WIDTH   3.464f
+#define CANVAS_HEIGHT  2.598f // PIXEL_HEIGHT*CANVAS_WIDTH/PIXEL_WIDTH
+#define CANVAS_WIDTH   3.464f // 2*tan(60 degrees)
 #define BYTES_PER_PIXEL 3u
 
 
@@ -48,9 +48,9 @@ typedef struct{
 }BMP_t;
 
 typedef struct{
-  char red;
-  char green;
-  char blue;
+unsigned  char red;
+unsigned  char green;
+unsigned  char blue;
 }color_t;
 
 typedef struct{
@@ -60,6 +60,12 @@ typedef struct{
  float r;
  color_t color;
 }sphere_t;
+
+typedef struct{
+  float x;
+  float y;
+  float z;
+}point_t;
 
 int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSphere);
 int SaveBmpFile(int fd, BMP_t* image);

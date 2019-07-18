@@ -13,7 +13,7 @@ typedef struct{
          // r1 = < x1, y1, z1 > ; r2 = < x2, y2, z2 > ; r = < x, y, z >
 
 char LineIntersectsSphere(line_t *line, sphere_t *sphere, point_t* point);
-void putpixel(BMP_t* image,int x, int y, char red, char green, char blue);
+void putpixel(BMP_t* image,int x, int y, unsigned char red, unsigned char green, unsigned char blue);
 float dotproduct(point_t p1, point_t p2);
 BMP_t* CreateCanvas(void)
 {
@@ -124,8 +124,9 @@ int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSpheres)
   }
 }
 
-void putpixel(BMP_t* image,int x, int y, char red, char green, char blue)
+void putpixel(BMP_t* image,int x, int y, unsigned char red, unsigned char green,unsigned char blue)
 {
+  
   image->pixeldata.data[y][x][0] = blue;
   image->pixeldata.data[y][x][1] = green;
   image->pixeldata.data[y][x][2] = red;
