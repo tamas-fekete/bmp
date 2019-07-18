@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "canvas.h"
-
+#include <math.h>
 typedef struct{
   float x1;
   float y1;
@@ -9,11 +9,12 @@ typedef struct{
   float x2;
   float y2;
   float z2;
-}line_t;
+}line_t; // equation of a line r = r1 + t(r2 - r1)
+         // r1 = < x1, y1, z1 > ; r2 = < x2, y2, z2 > ; r = < x, y, z >
 
-char LineIntersectsSphere(line_t *line, sphere_t *sphere);
+char LineIntersectsSphere(line_t *line, sphere_t *sphere, point_t* point);
 void putpixel(BMP_t* image,int x, int y, char red, char green, char blue);
-
+float dotproduct(point_t p1, point_t p2);
 BMP_t* CreateCanvas(void)
 {
   int i;
@@ -75,12 +76,18 @@ int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSpheres)
 {
   int i, j, k;
   line_t line;
-  line.x1 = 1.732f;
-  line.y1 = 1.299f;
+  line.x1 = 1.732f; //CANVAS_WIDTH/2 Point of view
+  line.y1 = 1.299f; //CANVAS_HEIGHT/2 Point of view
   line.z1 = 0.0f;
   line.z2 = 1.0f;
-
-
+  point_t sol;
+  sol.x = -1.0f;
+  sol.y = -1.0f;
+  sol.z = 2.0f;
+  point_t temp1;
+  point_t temp2;
+  point_t intersection; //pov sphere point of intersection
+  float light = 0.0;
   for(i=0; i<PIXEL_HEIGHT; i++)
   {
     for(j=0; j<PIXEL_WIDTH; j++)
@@ -89,9 +96,23 @@ int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSpheres)
       line.y2 =  ((float)i+0.5)*CANVAS_HEIGHT/PIXEL_HEIGHT;
       for(k=0; k<numberOfSpheres; k++)
       {
-        if(LineIntersectsSphere(&line, sphere[k]))
+        if(LineIntersectsSphere(&line, sphere[k], &intersection))
         {
-         putpixel(image, j, PIXEL_HEIGHT-i-1, sphere[k]->color.red, sphere[k]->color.green, sphere[k]->color.blue);
+         temp1.x = intersection.x - sphere[k]->sx;
+         temp1.y = intersection.y - sphere[k]->sy;
+         temp1.z = intersection.z - sphere[k]->sz;
+         
+         temp2.x = sol.x - intersection.x;
+         temp2.y = sol.y - intersection.y;
+         temp2.z = sol.z - intersection.z;
+         light = dotproduct(temp1, temp2);
+          if(light < 0)
+          {
+            light = 0;
+          } 
+         
+         
+         putpixel(image, j, PIXEL_HEIGHT-i-1, sphere[k]->color.red*light, sphere[k]->color.green*light, sphere[k]->color.blue*light);
           break;
         }
         else
@@ -109,7 +130,7 @@ void putpixel(BMP_t* image,int x, int y, char red, char green, char blue)
   image->pixeldata.data[y][x][1] = green;
   image->pixeldata.data[y][x][2] = red;
 }
-char LineIntersectsSphere(line_t *line, sphere_t *sphere)
+char LineIntersectsSphere(line_t *line, sphere_t *sphere, point_t* point)
 {
   float x1 = line->x1;
   float x2 = line->x2;
@@ -128,5 +149,36 @@ char LineIntersectsSphere(line_t *line, sphere_t *sphere)
   {
     return 0;
   }
-  else return 1;
+  else // calculate the point of intersection(s) choose the point closer to the POV
+  {
+    float t1, t2;
+    float px1, py1, pz1, px2, py2, pz2;
+    t1 = (-b+sqrt( b*b - 4*a*c) ) / (2*a);
+    t2 = (-b-sqrt( b*b - 4*a*c) ) / (2*a);
+    pz1  = z1 + t1*(z2 - z1);   
+    pz2  = z1 + t2*(z2 - z1);
+    py1  = y1 + t1*(y2 - y1);
+    py2  = y1 + t2*(y2 - y1);
+    px1  = x1 + t1*(x2 - x1);
+    px2  = x1 + t2*(x2 - x1); //theres gotta be an easier way
+    if(pz1 < pz2)
+    {
+      point->x = px1;
+      point->y = py1;
+      point->z = pz1; 
+    }   
+    else
+    {
+      point->x = px2;
+      point->y = py2;
+      point->z = pz2;
+    }
+    
+    return 1;
+  } 
+ }
+
+float dotproduct(point_t p1, point_t p2)
+{
+  return (p1.x*p2.x + p1.y*p2.y + p1.z*p2.z)/( sqrt(p1.x*p1.x + p1.y*p1.y + p1.z*p1.z)*sqrt(p2.x*p2.x + p2.y*p2.y + p2.z*p2.z) );
 }
