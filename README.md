@@ -9,5 +9,6 @@ idea:
  - add_pov function which adds the point of view of the scene.
  - add_sol function which adds a source of light to the scene.
   - multiple objects, spheres? need a tree that can point to any object that can be placed in the world
-  - multiple sols? i think light intensities should add up, more thought on that later and that sols should be stored in a different tree.  
-	-integrate with CMOCK and UNITY 
+  - multiple sols? i think light intensities should add up, more thought on that later and that sols should be stored in a different tree.   
+  - Integrate CMOCK and UNITY.
+
