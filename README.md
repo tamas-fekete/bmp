@@ -1,7 +1,9 @@
 compile: gcc bmp.c canvas.c  
 
 Very very simple raytracer draws a sphere on the screen with one light source.
-The code really needs some serious cleaning and tidying.?. 
+The code really needs some serious cleaning and tidying.?.  
+  
+ Goal: Do the steps described here: https://github.com/ssloy/tinyraytracer/wiki/Part-1:-understandable-raytracing
  
 idea:
  - need an add_sphere function. Adds a sphere to a global tree which sorts the spheres in POV closeness.
