@@ -82,8 +82,8 @@ int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSpheres)
   line.z2 = 1.0f;
   point_t sol;
   sol.x = -1.0f;
-  sol.y = -1.0f;
-  sol.z = 2.0f;
+  sol.y = 1.3f;
+  sol.z = 1.0f;
   point_t temp1;
   point_t temp2;
   point_t intersection; //pov sphere point of intersection

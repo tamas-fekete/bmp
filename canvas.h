@@ -47,8 +47,7 @@ typedef struct{
   PixelData_t pixeldata;
 }BMP_t;
 
-typedef struct{
-unsigned  char red;
+typedef struct{unsigned  char red;
 unsigned  char green;
 unsigned  char blue;
 }color_t;
