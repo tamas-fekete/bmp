@@ -17,7 +17,7 @@ int main(void)
   sphere[0]->color.green = 0x69;
   sphere[0]->color.blue = 0xFF;
   image = CreateCanvas();
-  fd = CreateBmpFile("picture.bmp");
+  fd = CreateBmpFile("picture22.bmp");
  
   DrawSphere(image, sphere, 1);
   

@@ -125,21 +125,21 @@ int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSpheres)
           }
           
           light2 = pow(light2, 40);
-         
-
-          light = 0.4*light2 + 0.6*light;
-          light = light > 1.0 ? 1.0:light; 
-          float red = sphere[k]->color.red*light + 255*light2; 
-          float green = sphere[k]->color.red*light + 255*light2;
-          float blue = sphere[k]->color.blue*light + 255*light2;
+          
+          float dred = sphere[k]->color.red*light; 
+          float dgreen = sphere[k]->color.green*light;
+          float dblue = sphere[k]->color.blue*light;
+          float red = dred + (255-dred)*light2;
+          float green = dgreen + (255-dgreen)*light2;
+          float blue = dblue + (255-dblue)*light2;
         red =  red>255 ? 255:red;
         green = green>255 ? 255:green;
         blue = blue>255 ? 255:blue;
           //display
         
-          putpixel(image, j, PIXEL_HEIGHT-i-1, sphere[k]->color.red*light, sphere[k]->color.green*light, sphere[k]->color.blue*light);
+         // putpixel(image, j, PIXEL_HEIGHT-i-1, sphere[k]->color.red*light, sphere[k]->color.green*light, sphere[k]->color.blue*light);
         // putpixel(image, j, PIXEL_HEIGHT-i-1,255.0*light2, 255.0*light2, 255.0*light2);
-         //  putpixel(image, j, PIXEL_HEIGHT-i-1, red, green, blue);
+           putpixel(image, j, PIXEL_HEIGHT-i-1, red, green, blue);
           
           break;
         }
