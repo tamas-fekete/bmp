@@ -53,9 +53,13 @@ unsigned  char blue;
 }color_t;
 
 typedef struct{
- float sx;
- float sy;
- float sz;
+  float x;
+  float y;
+  float z;
+}point_t;
+
+typedef struct{
+ point_t center;
  float r;
  color_t color;
 }sphere_t;
@@ -64,11 +68,14 @@ typedef struct{
   float x;
   float y;
   float z;
-}point_t;
+}vector_t;
 
 int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSphere);
 int SaveBmpFile(int fd, BMP_t* image);
 int CreateBmpFile(char *name);
+vector_t createunitvector(vector_t *v);
+vector_t pointstovector(point_t *start, point_t *end);
+vector_t scalartimesvector(float scalar, vector_t v);
+vector_t vectorminusvector(vector_t v1, vector_t v2);
+
 BMP_t* CreateCanvas(void);
-
-

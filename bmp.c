@@ -9,9 +9,9 @@ int main(void)
   sphere_t sphere1;
   sphere_t sphere2;
   sphere[0] = &sphere1;
-  sphere[0]->sx = 1.732;
-  sphere[0]->sy = 1.3;
-  sphere[0]->sz = 3.0;
+  sphere[0]->center.x = 1.732;
+  sphere[0]->center.y = 1.3;
+  sphere[0]->center.z = 3.0;
   sphere[0]->r  = 1.0;
   sphere[0]->color.red = 0xA4;
   sphere[0]->color.green = 0x69;
