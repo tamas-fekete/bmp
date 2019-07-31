@@ -9,7 +9,7 @@
 
 static sphere_t *sphere[NUMBER_OF_SPHERES];
 
-void putpixel(BMP_t* image,int x, int y, unsigned char red, unsigned char green, unsigned char blue);
+void putpixel(int x, int y, unsigned char red, unsigned char green, unsigned char blue);
 
 void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned char green, unsigned char blue)
 {
@@ -23,7 +23,7 @@ void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned c
   sphere[0]->color.blue = blue;
 }
 
-int DrawSphere(BMP_t *image)
+int DrawSphere(void)
 {
   int i, j, k;
   line_t line;
@@ -85,29 +85,28 @@ int DrawSphere(BMP_t *image)
           float red = dred + (255-dred)*light2;
           float green = dgreen + (255-dgreen)*light2;
           float blue = dblue + (255-dblue)*light2;
-        red =  red>255 ? 255:red;
-        green = green>255 ? 255:green;
-        blue = blue>255 ? 255:blue;
+          red =  red>255 ? 255:red;
+          green = green>255 ? 255:green;
+          blue = blue>255 ? 255:blue;
           //display
         
          // putpixel(image, j, PIXEL_HEIGHT-i-1, sphere[k]->color.red*light, sphere[k]->color.green*light, sphere[k]->color.blue*light);
         // putpixel(image, j, PIXEL_HEIGHT-i-1,255.0*light2, 255.0*light2, 255.0*light2);
-           putpixel(image, j, PIXEL_HEIGHT-i-1, red, green, blue);
+           putpixel(j, PIXEL_HEIGHT-i-1, red, green, blue);
           
         }
         else
         {
-          putpixel(image, j, PIXEL_HEIGHT-i-1, 0xFF, 0xFF, 0xFF);
+          putpixel(j, PIXEL_HEIGHT-i-1, 0xFF, 0xFF, 0xFF);
         }
     }
   }
 }
 
-void putpixel(BMP_t* image,int x, int y, unsigned char red, unsigned char green,unsigned char blue)
+void putpixel(int x, int y, unsigned char red, unsigned char green,unsigned char blue)
 {
-  
-  image->pixeldata.data[y][x][0] = blue;
-  image->pixeldata.data[y][x][1] = green;
-  image->pixeldata.data[y][x][2] = red;
+  PixelData_t* pixeldata = GetPixelData();
+  pixeldata->data[y][x][0] = blue;
+  pixeldata->data[y][x][1] = green;
+  pixeldata->data[y][x][2] = red;
 }
-
