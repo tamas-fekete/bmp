@@ -1,27 +1,59 @@
+#include "bmp.h"
+#include <stdlib.h>
 #include <stdio.h>
-#include "vector.h"
-#include "canvas.h"
-
-int main(void)
+BMP_t* CreateCanvas(void)
 {
-  BMP_t *image;
-  int fd;
-  sphere_t* sphere[1];
-  sphere_t sphere1;
-  sphere_t sphere2;
-  sphere[0] = &sphere1;
-  sphere[0]->center.x = 1.732;
-  sphere[0]->center.y = 1.3;
-  sphere[0]->center.z = 3.0;
-  sphere[0]->r  = 1.0;
-  sphere[0]->color.red = 0xA4;
-  sphere[0]->color.green = 0x69;
-  sphere[0]->color.blue = 0xFF;
-  image = CreateCanvas();
-  fd = CreateBmpFile("picture22.bmp");
- 
-  DrawSphere(image, sphere, 1);
+  int i;
+  BMP_t* image = (BMP_t*)malloc(sizeof(BMP_t)); 
+  image->header.Signature = 0x4D42;
+  image->header.FileSize  = sizeof(BMP_t);
+  image->header.reserved  = 0;
+  image->header.DataOffset= sizeof(Header_t) + sizeof(InfoHeader_t);
+  image->infoheader.Size = sizeof(InfoHeader_t);
+  image->infoheader.Width = PIXEL_WIDTH;
+  image->infoheader.Height= PIXEL_HEIGHT;
+  image->infoheader.Planes = 1;
+  image->infoheader.BitsPerPixel = BYTES_PER_PIXEL*8;
+  image->infoheader.Compression = 0;
+  image->infoheader.ImageSize = 0;
+  image->infoheader.XpixelsPerMeter = 0;
+  image->infoheader.YpixelsPerMeter = 0;
+  image->infoheader.ColorsUsed = 0;
+  image->infoheader.ImportantColors = 0;
   
-  SaveBmpFile(fd, image); 
+  for(i=0; i<sizeof(image->pixeldata); i++)
+  {
+    image->pixeldata.datab[i]=0;
+  }
+  return image;
+}
+
+int CreateBmpFile(char *name)
+{
+  int fd;
+  if((fd=open(name, O_RDWR|O_CREAT))==-1)
+  {
+    perror("open error:");
+    return -1;
+  }
+  else return fd;
+}
+
+
+int SaveBmpFile(int fd, BMP_t* image)
+{
+  int bytes;
+  if((bytes=write(fd, image, sizeof(BMP_t))) < sizeof(BMP_t))
+  {
+     printf("bytes written: %d. Size: %ld\n", bytes, sizeof(image));
+     perror("write error:");
+     return -1;
+  } 
+ if(close(fd) == -1)
+  {
+    perror("close error:");
+    return -1;
+  }
+
   return 0;
 }
