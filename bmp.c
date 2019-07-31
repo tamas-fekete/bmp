@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "vector.h"
 #include "canvas.h"
 
 int main(void)
