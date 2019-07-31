@@ -5,13 +5,25 @@
 #include "canvas.h"
 #include <math.h>
 
+#define NUMBER_OF_SPHERES 1
 
+static sphere_t *sphere[NUMBER_OF_SPHERES];
 
 void putpixel(BMP_t* image,int x, int y, unsigned char red, unsigned char green, unsigned char blue);
 
+void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned char green, unsigned char blue)
+{
+  sphere[0] = (sphere_t*) malloc(sizeof(sphere_t));
+  sphere[0]->center.x = x;
+  sphere[0]->center.y = y;
+  sphere[0]->center.z = z;
+  sphere[0]->r  = r;
+  sphere[0]->color.red = red;
+  sphere[0]->color.green = green;
+  sphere[0]->color.blue = blue;
+}
 
-
-int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSpheres)
+int DrawSphere(BMP_t *image)
 {
   int i, j, k;
   line_t line;
@@ -35,14 +47,13 @@ int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSpheres)
     {
       line.p2.x = ((float)j+0.5)*CANVAS_WIDTH/PIXEL_WIDTH;
       line.p2.y =  ((float)i+0.5)*CANVAS_HEIGHT/PIXEL_HEIGHT;
-      for(k=0; k<numberOfSpheres; k++)
-      {
-        if(LineIntersectsSphere(&line, sphere[k], &intersection))
+     
+        if(LineIntersectsSphere(&line, sphere[0], &intersection))
         {
          vector_t sphereUnitNormal;
          vector_t vtmp;
          vector_t reflection;
-         spherenormal = pointstovector(&sphere[k]->center, &intersection);
+         spherenormal = pointstovector(&sphere[0]->center, &intersection);
          
          ray = pointstovector(&intersection, &sol);
          //diffuse reflection calculation
@@ -68,9 +79,9 @@ int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSpheres)
           
           light2 = pow(light2, 40);
           
-          float dred = sphere[k]->color.red*light; 
-          float dgreen = sphere[k]->color.green*light;
-          float dblue = sphere[k]->color.blue*light;
+          float dred = sphere[0]->color.red*light; 
+          float dgreen = sphere[0]->color.green*light;
+          float dblue = sphere[0]->color.blue*light;
           float red = dred + (255-dred)*light2;
           float green = dgreen + (255-dgreen)*light2;
           float blue = dblue + (255-dblue)*light2;
@@ -83,13 +94,11 @@ int DrawSphere(BMP_t *image, sphere_t* sphere[], int numberOfSpheres)
         // putpixel(image, j, PIXEL_HEIGHT-i-1,255.0*light2, 255.0*light2, 255.0*light2);
            putpixel(image, j, PIXEL_HEIGHT-i-1, red, green, blue);
           
-          break;
         }
         else
         {
           putpixel(image, j, PIXEL_HEIGHT-i-1, 0xFF, 0xFF, 0xFF);
         }
-      }
     }
   }
 }

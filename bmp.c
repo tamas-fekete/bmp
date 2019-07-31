@@ -1,6 +1,7 @@
 #include "bmp.h"
 #include <stdlib.h>
 #include <stdio.h>
+
 BMP_t* CreateCanvas(void)
 {
   int i;
