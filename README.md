@@ -6,7 +6,7 @@ The code really needs some serious cleaning and tidying.?.
  Goal: Do the steps described here: https://github.com/ssloy/tinyraytracer/wiki/Part-1:-understandable-raytracing
  
 idea:
- - need an add_sphere function. Adds a sphere to a global tree which sorts the spheres in POV closeness.
+ - need an add_sphere function.( Adds a sphere to a global tree which sorts the spheres in POV closeness. This is not done yet)
  - render_scene function which creates the bmp file.
  - add_pov function which adds the point of view of the scene.
  - add_sol function which adds a source of light to the scene.
