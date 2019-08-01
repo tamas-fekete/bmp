@@ -1,3 +1,5 @@
+.PHONY: clean
+
 picture : bmp.o canvas.o vector.o main.o
 	gcc -o picture main.o bmp.o canvas.o vector.o -lm
 
@@ -12,3 +14,8 @@ vector.o : vector.c
 
 main.o : main.c
 	gcc -c main.c
+
+clean : 
+	rm -r *.o
+
+
