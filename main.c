@@ -11,6 +11,7 @@ int main(void)
   AddSphere(2.5, 1.8, 8.0, 3.0, 0x00, 0x00, 0xAf);
   AddSol(-1.0, 1.3, 1.0);
   AddSol(-1.0, -2.0, 2.0);
+  AddSol(4.0, 3.2, 4.0);
   DrawSphere();
   SaveImage("picture4.bmp");
   return 0;
