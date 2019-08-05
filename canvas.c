@@ -64,10 +64,10 @@ int DrawSphere(void)
   vector_t ray;
   vector_t spherenormal;
   point_t intersection; //pov sphere point of intersection
-  float light[2] = {0.0, 0.0};
+  float *light = (float*)malloc(solCount*sizeof(float));
   float specularLight = 0.0;
   float diffuseLight = 0.0;
-  float light2[2] = {0.0, 0.0};
+  float *light2 = (float*)malloc(solCount*sizeof(float));
   for(i=0; i<PIXEL_HEIGHT; i++)
   {
     for(j=0; j<PIXEL_WIDTH; j++)
