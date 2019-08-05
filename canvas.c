@@ -6,9 +6,11 @@
 #include <math.h>
 
 #define NUMBER_OF_SPHERES 5
-
+#define NUMBER_OF_SOLS 3
 static sphere_t *sphere[NUMBER_OF_SPHERES];
-static char sphereCount = 0;
+static point_t *sol[NUMBER_OF_SOLS];
+static unsigned char sphereCount = 0;
+static unsigned char solCount = 0;
 
 void putpixel(int x, int y, unsigned char red, unsigned char green, unsigned char blue);
 
@@ -27,7 +29,6 @@ void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned c
     sphere[i]->color.green = green;
     sphere[i]->color.blue = blue;
     sphereCount = ++i;
-    
   }
   else
   {
@@ -35,24 +36,38 @@ void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned c
   }
  }
 
+ void AddSol(float x, float y, float z)
+ {
+  static char j = 0;
+  if(j<NUMBER_OF_SOLS)
+  {
+    sol[j] = (point_t*)malloc(sizeof(point_t));
+    sol[j]->x = x;
+    sol[j]->y = y;
+    sol[j]->z = z;
+    solCount = ++j;
+  }
+  else
+  {
+    printf("Too many sols\n");
+  }
+ }
+
 int DrawSphere(void)
 {
-  int i, j, k;
+  int i, j, k, m;
   line_t line;
   line.p1.x = 1.732f; //CANVAS_WIDTH/2 Point of view
   line.p1.y = 1.299f; //CANVAS_HEIGHT/2 Point of view
   line.p1.z = 0.0f;
   line.p2.z = 1.0f;
-  point_t sol;
-  sol.x = -1.0f;
-  sol.y = 1.3f;
-  sol.z = 1.0f;
   vector_t ray;
   vector_t spherenormal;
   point_t intersection; //pov sphere point of intersection
-  float light = 0.0;
+  float light[2] = {0.0, 0.0};
   float specularLight = 0.0;
-  float light2 = 0.0;
+  float diffuseLight = 0.0;
+  float light2[2] = {0.0, 0.0};
   for(i=0; i<PIXEL_HEIGHT; i++)
   {
     for(j=0; j<PIXEL_WIDTH; j++)
@@ -69,36 +84,52 @@ int DrawSphere(void)
          vector_t reflection;
          spherenormal = pointstovector(&sphere[k]->center, &intersection);
          
-         ray = pointstovector(&intersection, &sol);
-         //diffuse reflection calculation
-         light = cosalpha(ray, spherenormal);
-         if(light <= 0)
-         {
-           light = 0;
-           light2 = 0;
-         }
-          
-          if(light > 0)
+          for(m = 0; m < solCount; m++)
           {
-         //specular reflection calculation
-            sphereUnitNormal = createunitvector(&spherenormal);
-            reflection = vectorminusvector(scalartimesvector(dotproduct(scalartimesvector(2.0, ray), sphereUnitNormal),sphereUnitNormal), ray);
+            ray = pointstovector(&intersection, sol[m]);
+            //diffuse reflection calculation
+            light[m] = cosalpha(ray, spherenormal);
+            if(light[m] <= 0)
+            {
+              light[m] = 0;
+              light2[m] = 0;
+            } 
+          
+            if(light[m] > 0)
+            {
+            //  specular reflection calculation
+              sphereUnitNormal = createunitvector(&spherenormal);
+              reflection = vectorminusvector(scalartimesvector(dotproduct(scalartimesvector(2.0, ray), sphereUnitNormal),sphereUnitNormal), ray);
             
-            light2 = cosalpha( pointstovector(&intersection, &line.p2) , reflection);
+              light2[m] = cosalpha( pointstovector(&intersection, &line.p2) , reflection);
+            }
+            if(light2[m] <= 0)
+            {
+              light2[m] = 0;
+            }
+          
+            light2[m] = pow(light2[m], 40);
           }
-          if(light2 <= 0)
+          
+          for(diffuseLight=0, specularLight=0, m=0; m<solCount; m++)
           {
-            light2 = 0;
+            diffuseLight = diffuseLight+ light[m];
+            specularLight = specularLight+ light2[m];
           }
-          
-          light2 = pow(light2, 40);
-          
-          float dred = sphere[k]->color.red*light; 
-          float dgreen = sphere[k]->color.green*light;
-          float dblue = sphere[k]->color.blue*light;
-          float red = dred + (255-dred)*light2;
-          float green = dgreen + (255-dgreen)*light2;
-          float blue = dblue + (255-dblue)*light2;
+          if(diffuseLight > 1.0)
+          {
+            diffuseLight = 1.0;
+          }
+          if(specularLight > 1.0)
+          {
+            specularLight = 1.0;
+          }
+          float dred = sphere[k]->color.red*diffuseLight; 
+          float dgreen = sphere[k]->color.green*diffuseLight;
+          float dblue = sphere[k]->color.blue*diffuseLight;
+          float red = dred + (255-dred)*specularLight;
+          float green = dgreen + (255-dgreen)*specularLight;
+          float blue = dblue + (255-dblue)*specularLight;
           red =  red>255 ? 255:red;
           green = green>255 ? 255:green;
           blue = blue>255 ? 255:blue;
