@@ -1,7 +1,11 @@
 #include "math.h"
 #include "vector.h"
 
+float PointToPointDistance(point_t p1, point_t p2)
+{
+ return sqrt((p1.x - p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y) + (p1.z-p2.z)*(p1.z-p2.z));
 
+}
 char LineIntersectsSphere(line_t *line, sphere_t *sphere, point_t* point)
 {
   float x1 = line->p1.x;

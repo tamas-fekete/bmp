@@ -5,23 +5,35 @@
 #include "canvas.h"
 #include <math.h>
 
-#define NUMBER_OF_SPHERES 1
+#define NUMBER_OF_SPHERES 5
 
 static sphere_t *sphere[NUMBER_OF_SPHERES];
+static char sphereCount = 0;
 
 void putpixel(int x, int y, unsigned char red, unsigned char green, unsigned char blue);
 
 void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned char green, unsigned char blue)
 {
-  sphere[0] = (sphere_t*) malloc(sizeof(sphere_t));
-  sphere[0]->center.x = x;
-  sphere[0]->center.y = y;
-  sphere[0]->center.z = z;
-  sphere[0]->r  = r;
-  sphere[0]->color.red = red;
-  sphere[0]->color.green = green;
-  sphere[0]->color.blue = blue;
-}
+  static char i = 0;
+
+  if(i<NUMBER_OF_SPHERES)
+  {
+    sphere[i] = (sphere_t*) malloc(sizeof(sphere_t));
+    sphere[i]->center.x = x;
+    sphere[i]->center.y = y;
+    sphere[i]->center.z = z;
+    sphere[i]->r  = r;
+    sphere[i]->color.red = red;
+    sphere[i]->color.green = green;
+    sphere[i]->color.blue = blue;
+    sphereCount = ++i;
+    
+  }
+  else
+  {
+    printf("Too many spheres!\n");
+  }
+ }
 
 int DrawSphere(void)
 {
@@ -47,13 +59,15 @@ int DrawSphere(void)
     {
       line.p2.x = ((float)j+0.5)*CANVAS_WIDTH/PIXEL_WIDTH;
       line.p2.y =  ((float)i+0.5)*CANVAS_HEIGHT/PIXEL_HEIGHT;
-     
-        if(LineIntersectsSphere(&line, sphere[0], &intersection))
+    
+      for(k=0; k < sphereCount; k++)
+      { 
+        if(LineIntersectsSphere(&line, sphere[k], &intersection))
         {
          vector_t sphereUnitNormal;
          vector_t vtmp;
          vector_t reflection;
-         spherenormal = pointstovector(&sphere[0]->center, &intersection);
+         spherenormal = pointstovector(&sphere[k]->center, &intersection);
          
          ray = pointstovector(&intersection, &sol);
          //diffuse reflection calculation
@@ -79,9 +93,9 @@ int DrawSphere(void)
           
           light2 = pow(light2, 40);
           
-          float dred = sphere[0]->color.red*light; 
-          float dgreen = sphere[0]->color.green*light;
-          float dblue = sphere[0]->color.blue*light;
+          float dred = sphere[k]->color.red*light; 
+          float dgreen = sphere[k]->color.green*light;
+          float dblue = sphere[k]->color.blue*light;
           float red = dred + (255-dred)*light2;
           float green = dgreen + (255-dgreen)*light2;
           float blue = dblue + (255-dblue)*light2;
@@ -93,12 +107,13 @@ int DrawSphere(void)
          // putpixel(image, j, PIXEL_HEIGHT-i-1, sphere[k]->color.red*light, sphere[k]->color.green*light, sphere[k]->color.blue*light);
         // putpixel(image, j, PIXEL_HEIGHT-i-1,255.0*light2, 255.0*light2, 255.0*light2);
            putpixel(j, PIXEL_HEIGHT-i-1, red, green, blue);
-          
+           break;    
         }
         else
         {
           putpixel(j, PIXEL_HEIGHT-i-1, 0xFF, 0xFF, 0xFF);
         }
+      }
     }
   }
 }

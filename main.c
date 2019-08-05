@@ -6,7 +6,9 @@
 int main(void)
 {
 
-  AddSphere(1.732, 1.3, 3.0, 1.0, 0xA4, 0x69, 0xFF);
+  AddSphere(0.7, 1.0, 3.0, 1.0, 0xA4, 0x69, 0xFF);
+  AddSphere(2.5, 1.7, 4.1, 0.6, 0x7f, 0x0, 0x0);
+  AddSphere(2.5, 1.8, 8.0, 3.0, 0x00, 0x00, 0xAf);
   DrawSphere();
   SaveImage("picture4.bmp");
   return 0;
