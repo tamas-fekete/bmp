@@ -55,7 +55,7 @@ void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned c
 
 int DrawSphere(void)
 {
-  int i, j, k, m;
+  int i, j, k, m, n;
   line_t line;
   line.p1.x = 1.732f; //CANVAS_WIDTH/2 Point of view
   line.p1.y = 1.299f; //CANVAS_HEIGHT/2 Point of view
@@ -68,6 +68,7 @@ int DrawSphere(void)
   float specularLight = 0.0;
   float diffuseLight = 0.0;
   float *light2 = (float*)malloc(solCount*sizeof(float));
+  unsigned char SphereIsBlocked = 0u;
   for(i=0; i<PIXEL_HEIGHT; i++)
   {
     for(j=0; j<PIXEL_WIDTH; j++)
@@ -87,34 +88,73 @@ int DrawSphere(void)
           for(m = 0; m < solCount; m++)
           {
             ray = pointstovector(&intersection, sol[m]);
-            //diffuse reflection calculation
-            light[m] = cosalpha(ray, spherenormal);
-            if(light[m] <= 0)
+            
+            for(n = 0; n < sphereCount; n++)
+            {
+              if(n==k)
+              {
+                continue;
+              }
+              else
+              {
+                line_t tmpLine;
+                point_t tmpIntersection;
+                tmpLine.p1 = intersection;
+                tmpLine.p2 = *sol[m];
+                if(LineIntersectsSphere(&tmpLine, sphere[n], &tmpIntersection))
+                {
+                  if(PointToPointDistance(tmpIntersection, *sol[m]) < PointToPointDistance(intersection, *sol[m]))
+                  {
+                    SphereIsBlocked = 1;
+                     break;
+                  }
+                  else
+                  {
+                    SphereIsBlocked = 0;
+                  }
+                }
+                else
+                {
+                  SphereIsBlocked = 0;
+                } 
+              }
+            }
+            
+            if(SphereIsBlocked)
             {
               light[m] = 0;
               light2[m] = 0;
-            } 
-          
-            if(light[m] > 0)
+            }
+            else
             {
-            //  specular reflection calculation
-              sphereUnitNormal = createunitvector(&spherenormal);
-              reflection = vectorminusvector(scalartimesvector(dotproduct(scalartimesvector(2.0, ray), sphereUnitNormal),sphereUnitNormal), ray);
+              //diffuse reflection calculation
+              light[m] = cosalpha(ray, spherenormal);
+              if(light[m] <= 0)
+              {
+                light[m] = 0;
+                light2[m] = 0;
+              }   
+          
+              if(light[m] > 0)
+              {
+                //  specular reflection calculation
+                sphereUnitNormal = createunitvector(&spherenormal);
+                reflection = vectorminusvector(scalartimesvector(dotproduct(scalartimesvector(2.0, ray), sphereUnitNormal),sphereUnitNormal), ray);
             
-              light2[m] = cosalpha( pointstovector(&intersection, &line.p2) , reflection);
-            }
-            if(light2[m] <= 0)
-            {
-              light2[m] = 0;
-            }
+                light2[m] = cosalpha( pointstovector(&intersection, &line.p2) , reflection);
+              }
+              if(light2[m] <= 0)
+              {
+                light2[m] = 0;
+              }
           
-            light2[m] = pow(light2[m], 40);
+              light2[m] = pow(light2[m], 40);
+            }
           }
-          
           for(diffuseLight=0, specularLight=0, m=0; m<solCount; m++)
           {
             diffuseLight = diffuseLight+ light[m];
-            specularLight = specularLight+ light2[m];
+              specularLight = specularLight+ light2[m];
           }
           if(diffuseLight > 1.0)
           {
@@ -135,10 +175,10 @@ int DrawSphere(void)
           blue = blue>255 ? 255:blue;
           //display
         
-         // putpixel(image, j, PIXEL_HEIGHT-i-1, sphere[k]->color.red*light, sphere[k]->color.green*light, sphere[k]->color.blue*light);
-        // putpixel(image, j, PIXEL_HEIGHT-i-1,255.0*light2, 255.0*light2, 255.0*light2);
-           putpixel(j, PIXEL_HEIGHT-i-1, red, green, blue);
-           break;    
+          //putpixel(image, j, PIXEL_HEIGHT-i-1, sphere[k]->color.red*light, sphere[k]->color.green*light, sphere[k]->color.blue*light);
+          //putpixel(image, j, PIXEL_HEIGHT-i-1,255.0*light2, 255.0*light2, 255.0*light2);
+          putpixel(j, PIXEL_HEIGHT-i-1, red, green, blue);
+          break;    
         }
         else
         {

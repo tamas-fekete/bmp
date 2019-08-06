@@ -7,7 +7,9 @@ float PointToPointDistance(point_t p1, point_t p2)
 
 }
 char LineIntersectsSphere(line_t *line, sphere_t *sphere, point_t* point)
-{
+{ 
+  point_t p1;
+  point_t p2;
   float x1 = line->p1.x;
   float x2 = line->p2.x;
   float x3 = sphere->center.x;
@@ -31,25 +33,22 @@ char LineIntersectsSphere(line_t *line, sphere_t *sphere, point_t* point)
     float px1, py1, pz1, px2, py2, pz2;
     t1 = (-b+sqrt( b*b - 4*a*c) ) / (2*a);
     t2 = (-b-sqrt( b*b - 4*a*c) ) / (2*a);
-    pz1  = z1 + t1*(z2 - z1);   
-    pz2  = z1 + t2*(z2 - z1);
-    py1  = y1 + t1*(y2 - y1);
-    py2  = y1 + t2*(y2 - y1);
-    px1  = x1 + t1*(x2 - x1);
-    px2  = x1 + t2*(x2 - x1); //theres gotta be an easier way
-    if(pz1 < pz2)
+    p1.z  = z1 + t1*(z2 - z1);   
+    p2.z  = z1 + t2*(z2 - z1);
+    p1.y  = y1 + t1*(y2 - y1);
+    p2.y  = y1 + t2*(y2 - y1);
+    p1.x  = x1 + t1*(x2 - x1);
+    p2.x  = x1 + t2*(x2 - x1); //theres gotta be an easier way
+
+
+    if(PointToPointDistance(p1, line->p1) < PointToPointDistance(p2, line->p1))
     {
-      point->x = px1;
-      point->y = py1;
-      point->z = pz1; 
-    }   
+      *point = p1;
+    }
     else
     {
-      point->x = px2;
-      point->y = py2;
-      point->z = pz2;
+      *point = p2;
     }
-    
     return 1;
   } 
  }
