@@ -6,3 +6,4 @@
 void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned char green, unsigned char blue);
 void AddSol(float x, float y, float z);
 int DrawSphere(void);
+void DrawScene(void);

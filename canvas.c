@@ -5,14 +5,16 @@
 #include "canvas.h"
 #include <math.h>
 
+#define MAX_RECURSION_DEPTH 3
 #define NUMBER_OF_SPHERES 5
 #define NUMBER_OF_SOLS 3
-static sphere_t *sphere[NUMBER_OF_SPHERES];
-static point_t *sol[NUMBER_OF_SOLS];
-static unsigned char sphereCount = 0;
-static unsigned char solCount = 0;
+sphere_t *sphere[NUMBER_OF_SPHERES];
+point_t *sol[NUMBER_OF_SOLS];
+unsigned char sphereCount = 0;
+unsigned char solCount = 0;
 
 void putpixel(int x, int y, unsigned char red, unsigned char green, unsigned char blue);
+color_t Trace(line_t *r, char recursionDepth);
 
 void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned char green, unsigned char blue)
 {
@@ -188,6 +190,47 @@ int DrawSphere(void)
     }
   }
 }
+color_t Trace(line_t *r, char recursionDepth)
+{
+  color_t color = { 0u, 0u, 0u};
+  sphere_t *tmpSphere = NULL;
+  if(recursionDepth > MAX_RECURSION_DEPTH){return color;}
+  tmpSphere = Intersection(r); // check if ray intersects an object in the scene
+  if(tmpSphere == NULL) // no intersection
+  {
+    color.red = 0xff;
+    color.green = 0xff;
+    color.blue = 0xff;
+    return color;
+  }
+  else
+  {
+     color = tmpSphere->color;
+  }
+   return color;
+}
+
+void DrawScene(void)
+{  
+  int i, j;
+  line_t line;
+  line.p1.x = 1.732f; //CANVAS_WIDTH/2 Point of view
+  line.p1.y = 1.299f; //CANVAS_HEIGHT/2 Point of view
+  line.p1.z = 0.0f;
+  line.p2.z = 1.0f;
+  color_t color;
+  for(i=0; i<PIXEL_HEIGHT; i++)
+  {
+    for(j=0; j<PIXEL_WIDTH; j++)
+    {
+      line.p2.x = ((float)j+0.5)*CANVAS_WIDTH/PIXEL_WIDTH;
+      line.p2.y =  ((float)i+0.5)*CANVAS_HEIGHT/PIXEL_HEIGHT;
+      color = Trace(&line, 3);
+      putpixel(j, PIXEL_HEIGHT-i-1, color.red, color.green, color.blue); 
+    }
+  }   
+}
+
 
 void putpixel(int x, int y, unsigned char red, unsigned char green,unsigned char blue)
 {
