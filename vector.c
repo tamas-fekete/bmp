@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "math.h"
 #include "vector.h"
 extern sphere_t *sphere[];
@@ -89,7 +90,7 @@ sphere_t* Intersection(line_t *line)
     float c = x3*x3 + y3*y3 + z3*z3 + x1*x1 + y1*y1 + z1*z1 - 2*(x3*x1 + y3*y1 + z3*z1) - r*r;
     if( (b*b-4*a*c) < 0)
     { 
-      continue;
+      continue;   //no intersection
     }
     else // calculate the point of intersection(s) choose the point closer to the POV
     {
@@ -104,7 +105,10 @@ sphere_t* Intersection(line_t *line)
       p1.x  = x1 + t1*(x2 - x1);
       p2.x  = x1 + t2*(x2 - x1); //theres gotta be an easier way
 
-
+      if(t1<0 || t2<0) // it is behind the pov
+      {
+        continue;
+      }
       if(PointToPointDistance(p1, line->p1) < PointToPointDistance(p2, line->p1))
       {
         sphere[i]->intersection = p1;
@@ -146,6 +150,16 @@ vector_t pointstovector(point_t *start, point_t *end)
   vtmp.z = end->z - start->z;
   return vtmp;
 }
+line_t* pointstoline(point_t *start, point_t *end)
+{
+  line_t *ltmp = (line_t*)malloc(sizeof(line_t));
+  ltmp->p1.x = start->x;
+  ltmp->p1.y = start->y;
+  ltmp->p1.z = start->z;
+  ltmp->p2.x = end->x;
+  ltmp->p2.y = end->y;
+  ltmp->p2.z = end->z;
+}
 vector_t scalartimesvector(float scalar, vector_t v)
 {
   vector_t vtmp;
@@ -161,4 +175,13 @@ vector_t vectorminusvector(vector_t v1, vector_t v2)
   vtmp.y = v1.y - v2.y;
   vtmp.z = v1.z - v2.z;
   return vtmp;
+}
+vector_t vectorplusvector(vector_t v1, vector_t v2)
+{
+  vector_t vtmp;
+  vtmp.x = v1.x + v2.x;
+  vtmp.y = v1.y + v2.y;
+  vtmp.z = v1.z + v2.z;
+  return vtmp; 
+
 }
