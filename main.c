@@ -12,7 +12,7 @@ int main(void)
   AddSol(-1.0, 1.3, 0.0);
 //  AddSol(1.7, 1.3, -10.0);
   AddSol(4.0, 3.2, 0.0);
-//  DrawSphere();
+ // DrawSphere();
 DrawScene();
   SaveImage("picture5.bmp");
   return 0;

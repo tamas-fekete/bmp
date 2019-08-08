@@ -7,7 +7,14 @@ extern point_t *sol[];
 extern unsigned char sphereCount;
 extern unsigned char solCount;
 
-
+color_t AddColors(color_t c1, color_t c2)
+{
+  color_t tmpColor;
+  tmpColor.red = c1.red + c2.red;
+  tmpColor.green = c1.green + c2.green;
+  tmpColor.blue = c1.blue + c2.blue;
+  return tmpColor;
+}
 float PointToPointDistance(point_t p1, point_t p2)
 {
  return sqrt((p1.x - p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y) + (p1.z-p2.z)*(p1.z-p2.z));

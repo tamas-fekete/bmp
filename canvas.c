@@ -15,6 +15,8 @@ unsigned char solCount = 0;
 
 void putpixel(int x, int y, unsigned char red, unsigned char green, unsigned char blue);
 color_t Trace(line_t *r, char recursionDepth);
+float DiffuseReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal);
+float SpecularReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal, point_t pov);
 
 void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned char green, unsigned char blue)
 {
@@ -194,6 +196,13 @@ color_t Trace(line_t *r, char recursionDepth)
 {
   color_t color = { 0u, 0u, 0u};
   sphere_t *tmpSphere = NULL;
+  int i;
+  float DiffuseLight = 0.0f;
+  float SpecularLight = 0.0f;
+  vector_t ray;
+  vector_t sphereUnitNormal;
+  vector_t sphereNormal;
+
   if(recursionDepth > MAX_RECURSION_DEPTH){return color;}
   tmpSphere = Intersection(r); // check if ray intersects an object in the scene
   if(tmpSphere == NULL) // no intersection
@@ -201,13 +210,71 @@ color_t Trace(line_t *r, char recursionDepth)
     color.red = 0xff;
     color.green = 0xff;
     color.blue = 0xff;
-    return color;
   }
   else
   {
-     color = tmpSphere->color;
+    //diffuse and specular color calculation taking into account every source of light (sol)
+    for(DiffuseLight=0, SpecularLight=0, i=0; i<solCount; i++)
+    {
+      ray = pointstovector(&tmpSphere->intersection, sol[i]);
+      sphereNormal = pointstovector(&tmpSphere->center, &tmpSphere->intersection);
+
+      DiffuseLight += DiffuseReflection(tmpSphere, ray, sphereNormal);
+      SpecularLight += pow(SpecularReflection(tmpSphere, ray, sphereNormal, r->p2), 40);
+      
+    }
+    if(DiffuseLight > 1)
+    {
+      DiffuseLight = 1.0f;
+    }
+    if(SpecularLight > 1)
+    {
+      SpecularLight = 1.0f;
+    }
+
+    float dred = tmpSphere->color.red*DiffuseLight; 
+    float dgreen = tmpSphere->color.green*DiffuseLight;
+    float dblue = tmpSphere->color.blue*DiffuseLight;
+    float red = dred + (255-dred)*SpecularLight;
+    float green = dgreen + (255-dgreen)*SpecularLight;
+    float blue = dblue + (255-dblue)*SpecularLight;
+    red =  red>255 ? 255:red;
+    green = green>255 ? 255:green;
+    blue = blue>255 ? 255:blue;
+    color.red = red;
+    color.green = green;
+    color.blue = blue;
+    //color = tmpSphere->color;//AddColors(tmpSphere->color, color);
   }
    return color;
+}
+
+float DiffuseReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal)
+{
+  float diffuseLight;
+  float sumDiffuseLight = 0;
+
+  diffuseLight = cosalpha(ray, sphereNormal); 
+  if(diffuseLight < 0)
+  {
+    diffuseLight = 0;  
+  }
+  return diffuseLight;
+}
+
+float SpecularReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal, point_t pov)
+{
+     //  specular reflection calculation
+    vector_t sphereUnitNormal, reflection;
+    sphereUnitNormal = createunitvector(&sphereNormal);
+    reflection = vectorminusvector(scalartimesvector(dotproduct(scalartimesvector(2.0, ray), sphereUnitNormal),sphereUnitNormal), ray);
+    float specularLight; 
+    specularLight = cosalpha( pointstovector(&Sphere->intersection, &pov) , reflection);     
+    if(specularLight < 0)
+    {
+      specularLight = 0;
+    } 
+    return specularLight;
 }
 
 void DrawScene(void)
@@ -225,7 +292,7 @@ void DrawScene(void)
     {
       line.p2.x = ((float)j+0.5)*CANVAS_WIDTH/PIXEL_WIDTH;
       line.p2.y =  ((float)i+0.5)*CANVAS_HEIGHT/PIXEL_HEIGHT;
-      color = Trace(&line, 3);
+      color = Trace(&line, 0);
       putpixel(j, PIXEL_HEIGHT-i-1, color.red, color.green, color.blue); 
     }
   }   
