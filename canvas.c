@@ -17,8 +17,8 @@ void putpixel(int x, int y, unsigned char red, unsigned char green, unsigned cha
 color_t Trace(line_t *r, char recursionDepth);
 float DiffuseReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal);
 float SpecularReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal, point_t pov);
-
-void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned char green, unsigned char blue)
+vector_t ReflectionVector(vector_t normal, vector_t incident);
+void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned char green, unsigned char blue, double reflection)
 {
   static char i = 0;
 
@@ -32,6 +32,7 @@ void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned c
     sphere[i]->color.red = red;
     sphere[i]->color.green = green;
     sphere[i]->color.blue = blue;
+    sphere[i]->reflection = reflection;
     sphereCount = ++i;
   }
   else
@@ -135,14 +136,16 @@ float DiffuseReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal)
   }
   return diffuseLight;
 }
-
+vector_t ReflectionVector(vector_t normal, vector_t incident)
+{ 
+    normal = createunitvector(&normal);
+    return vectorminusvector(scalartimesvector(dotproduct(scalartimesvector(2.0, incident), normal), normal), incident);
+}
 float SpecularReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal, point_t pov)
 {
      //  specular reflection calculation
-    vector_t sphereUnitNormal, reflection;
-    sphereUnitNormal = createunitvector(&sphereNormal);
-    reflection = vectorminusvector(scalartimesvector(dotproduct(scalartimesvector(2.0, ray), sphereUnitNormal),sphereUnitNormal), ray);
-    float specularLight; 
+    float specularLight;
+    vector_t reflection = ReflectionVector(sphereNormal, ray); 
     specularLight = cosalpha( pointstovector(&Sphere->intersection, &pov) , reflection);     
     if(specularLight < 0)
     {

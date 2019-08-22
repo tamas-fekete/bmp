@@ -16,6 +16,7 @@ typedef struct{
  float r;
  color_t color;
  point_t intersection;
+ double reflection;
 }sphere_t;
 
 typedef struct{
