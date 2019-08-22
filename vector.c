@@ -24,18 +24,24 @@ float PointToPointDistance(point_t p1, point_t p2)
 sphere_t* Intersection(line_t *line)
 {
   point_t p1;
+  point_t tmp;
   point_t p2;
+
+  vector_t v1 = pointstovector(&line->p1, &line->p2);
+  v1 = createunitvector(&v1);
+  v1 = scalartimesvector(0.001, v1);
+  tmp = vectorplusvector(v1, line->p1);
   sphere_t *tmpSphere = NULL;
   int i;
   for(i = 0; i < sphereCount; i++)
   {  
-    float x1 = line->p1.x;
+    float x1 = tmp.x;
     float x2 = line->p2.x;
     float x3 = sphere[i]->center.x;
-    float y1 = line->p1.y;
+    float y1 = tmp.y;
     float y2 = line->p2.y;
     float y3 = sphere[i]->center.y;
-    float z1 = line->p1.z;
+    float z1 = tmp.z;
     float z2 = line->p2.z;
     float z3 = sphere[i]->center.z;
     float r = sphere[i]->r;
@@ -88,8 +94,7 @@ float dotproduct(vector_t v1, vector_t v2)
 vector_t createunitvector(vector_t *v)
 {
   vector_t vtmp;                                                   
-                                                                        //  _________________                        
-  float length = sqrt(v->x*v->x + v->y*v->y + v->y*v->y + v->z*v->z);   // V x^2 + y^2 + z^2 '
+                                                                        //  _________________                          float length = sqrt(v->x*v->x + v->y*v->y + v->y*v->y + v->z*v->z);   // V x^2 + y^2 + z^2 '
   vtmp.x = v->x/length; 
   vtmp.y = v->y/length;
   vtmp.z = v->z/length;

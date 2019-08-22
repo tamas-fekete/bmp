@@ -86,9 +86,7 @@ color_t Trace(line_t *r, char recursionDepth)
       ray = pointstovector(&tmpSphere->intersection, sol[i]);
 
       //check if source of light is blocked
-      sphereUnitNormal = scalartimesvector(0.001, sphereUnitNormal); 
-      vector_t vtmp = vectorplusvector(sphereUnitNormal, (vector_t)tmpSphere->intersection);
-      if(Intersection(pointstoline((point_t*)&vtmp, sol[i] )) != NULL)
+      if(Intersection(pointstoline(&tmpSphere->intersection, sol[i] )) != NULL)
       {
         DiffuseLight += 0;
         SpecularLight += 0;
