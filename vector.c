@@ -94,7 +94,8 @@ float dotproduct(vector_t v1, vector_t v2)
 vector_t createunitvector(vector_t *v)
 {
   vector_t vtmp;                                                   
-                                                                        //  _________________                          float length = sqrt(v->x*v->x + v->y*v->y + v->y*v->y + v->z*v->z);   // V x^2 + y^2 + z^2 '
+                                                                        //  _________________                          
+  float length = sqrt(v->x*v->x + v->y*v->y + v->y*v->y + v->z*v->z);   // V x^2 + y^2 + z^2 '
   vtmp.x = v->x/length; 
   vtmp.y = v->y/length;
   vtmp.z = v->z/length;
