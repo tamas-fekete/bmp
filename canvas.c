@@ -134,9 +134,9 @@ color_t Trace(line_t *r, char recursionDepth)
     
     if(tmpSphere->reflection>0)
     {
-      color.red =   BlendColors( color.red, red, 0.8);
-      color.green = BlendColors( color.green, green, 0.8);
-      color.blue =  BlendColors( color.blue, blue, 0.8);
+      color.red =   BlendColors( color.red, red, 0.2);
+      color.green = BlendColors( color.green, green, 0.2);
+      color.blue =  BlendColors( color.blue, blue, 0.2);
     }
     else
     {
