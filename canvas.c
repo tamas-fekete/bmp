@@ -18,6 +18,8 @@ color_t Trace(line_t *r, char recursionDepth);
 float DiffuseReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal);
 float SpecularReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal, point_t pov);
 vector_t ReflectionVector(vector_t normal, vector_t incident);
+float BlendColors(float a, float b, float t);
+
 void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned char green, unsigned char blue, double reflection)
 {
   static char i = 0;
@@ -60,7 +62,7 @@ void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned c
 
 color_t Trace(line_t *r, char recursionDepth)
 {
-  color_t color = { 0u, 0u, 0u};
+  color_t color = { 0xffu, 0xffu, 0xffu};
   sphere_t *tmpSphere = NULL;
   int i;
   float DiffuseLight = 0.0f;
@@ -79,6 +81,19 @@ color_t Trace(line_t *r, char recursionDepth)
   }
   else
   {
+    if(tmpSphere->reflection > 0)
+    {
+      // if sphere is made out reflective material, the reflection is calculated
+      // i need the point of intersection and a point in the direction of the sphere normal
+      vector_t reflection, incident;
+      line_t reflectionLine;
+      sphereNormal = pointstovector(&tmpSphere->center, &tmpSphere->intersection);
+      incident = pointstovector(&r->p2, &r->p1);
+      reflection = ReflectionVector(sphereNormal, incident);
+      reflectionLine.p1 = tmpSphere->intersection;
+      reflectionLine.p2 = vectorplusvector(tmpSphere->intersection, reflection);
+      color = Trace(&reflectionLine, recursionDepth+1);
+    }
      sphereNormal = pointstovector(&tmpSphere->center, &tmpSphere->intersection);
      sphereUnitNormal = createunitvector(&sphereNormal);  
     //diffuse and specular color calculation taking into account every source of light (sol)
@@ -116,9 +131,23 @@ color_t Trace(line_t *r, char recursionDepth)
     red =  red>255 ? 255:red;
     green = green>255 ? 255:green;
     blue = blue>255 ? 255:blue;
-    color.red = red;
-    color.green = green;
-    color.blue = blue;
+    
+    if(tmpSphere->reflection>0)
+    {
+      color.red =   BlendColors( color.red, red, 0.8);
+      color.green = BlendColors( color.green, green, 0.8);
+      color.blue =  BlendColors( color.blue, blue, 0.8);
+    }
+    else
+    {
+      color.red = red;
+      color.green = green;
+      color.blue = blue;
+    }
+/*
+    color.red = tmpSphere->reflection>0 ? color.red : red;
+    color.green = tmpSphere->reflection>0 ? color.green: green;
+    color.blue = tmpSphere->reflection>0 ? color.blue: blue;*/
     //color = tmpSphere->color;//AddColors(tmpSphere->color, color);
   }
    return color;
@@ -174,7 +203,10 @@ void DrawScene(void)
     }
   }   
 }
-
+float BlendColors(float a, float b, float t)
+{
+  return sqrt( (1-t)*a*a + t*b*b);
+}
 
 void putpixel(int x, int y, unsigned char red, unsigned char green,unsigned char blue)
 {

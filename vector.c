@@ -65,15 +65,15 @@ sphere_t* Intersection(line_t *line)
       p1.x  = x1 + t1*(x2 - x1);
       p2.x  = x1 + t2*(x2 - x1); //theres gotta be an easier way
 
-      if(t1<0 || t2<0) // it is behind the pov
+      if(t1<0 && t2<0) // it is behind the pov
       {
         continue;
       }
-      if(PointToPointDistance(p1, line->p1) < PointToPointDistance(p2, line->p1))
+      if((PointToPointDistance(p1, line->p1) < PointToPointDistance(p2, line->p1)) && t1>=0)
       {
         sphere[i]->intersection = p1;
       }
-      else
+      else if(t2>=0)  // this might be unnecessary, need to think about it more
       {
         sphere[i]->intersection = p2;
       }
