@@ -77,8 +77,15 @@ sphere_t* Intersection(line_t *line)
       {
         sphere[i]->intersection = p2;
       }
-      tmpSphere = sphere[i];
-      break;
+      if(tmpSphere == NULL)
+      {
+        tmpSphere = sphere[i];
+      }
+      if(PointToPointDistance(tmp, sphere[i]->intersection) < PointToPointDistance(tmp, tmpSphere->intersection))
+      {
+        tmpSphere = sphere[i];
+      }
+
     } 
   } 
   return tmpSphere; 
