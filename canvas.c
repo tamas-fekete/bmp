@@ -144,11 +144,6 @@ color_t Trace(line_t *r, char recursionDepth)
       color.green = green;
       color.blue = blue;
     }
-/*
-    color.red = tmpSphere->reflection>0 ? color.red : red;
-    color.green = tmpSphere->reflection>0 ? color.green: green;
-    color.blue = tmpSphere->reflection>0 ? color.blue: blue;*/
-    //color = tmpSphere->color;//AddColors(tmpSphere->color, color);
   }
    return color;
 }
