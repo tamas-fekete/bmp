@@ -5,7 +5,7 @@
 #include "canvas.h"
 #include <math.h>
 
-#define MAX_RECURSION_DEPTH 3
+#define MAX_RECURSION_DEPTH 4
 #define NUMBER_OF_SPHERES 5
 #define NUMBER_OF_SOLS 3
 sphere_t *sphere[NUMBER_OF_SPHERES];
@@ -20,7 +20,7 @@ float SpecularReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal, 
 vector_t ReflectionVector(vector_t normal, vector_t incident);
 float BlendColors(float a, float b, float t);
 
-void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned char green, unsigned char blue, double reflection)
+void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned char green, unsigned char blue, double reflection, double refraction)
 {
   static char i = 0;
 
@@ -35,6 +35,7 @@ void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned c
     sphere[i]->color.green = green;
     sphere[i]->color.blue = blue;
     sphere[i]->reflection = reflection;
+    sphere[i]->refraction = refraction;
     sphereCount = ++i;
   }
   else
@@ -97,6 +98,22 @@ sphere_t dontCareSphere;
       reflectionLine.p2 = vectorplusvector(tmpSphere->intersection, reflection);
       color = Trace(&reflectionLine, recursionDepth+1);
     }
+    else if(tmpSphere->refraction > 0)
+    {
+      line_t refractedLine;
+      vector_t incident;
+      sphere_t refractedSphere;
+      incident = pointstovector(&r->p1, &r->p2);
+      
+      refractedLine.p1 = tmpSphere->intersection;
+      refractedLine.p2 = vectorplusvector(tmpSphere->intersection, incident);
+      Intersection(&refractedLine, &refractedSphere);
+      
+      refractedLine.p1 = refractedSphere.intersection;
+      refractedLine.p2 = vectorplusvector(refractedSphere.intersection, incident);
+    
+      color = Trace(&refractedLine, recursionDepth+1);
+    }
      sphereNormal = pointstovector(&tmpSphere->center, &tmpSphere->intersection);
      sphereUnitNormal = createunitvector(&sphereNormal);  
     //diffuse and specular color calculation taking into account every source of light (sol)
@@ -140,6 +157,12 @@ sphere_t dontCareSphere;
       color.red =   BlendColors( color.red, red, 0.25);
       color.green = BlendColors( color.green, green, 0.25);
       color.blue =  BlendColors( color.blue, blue, 0.25);
+    }
+   else if(tmpSphere->refraction>0)
+    {
+      color.red =   BlendColors( color.red, red, 0.15);
+      color.green = BlendColors( color.green, green, 0.15);
+      color.blue =  BlendColors( color.blue, blue, 0.15);
     }
     else
     {
