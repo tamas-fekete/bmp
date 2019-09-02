@@ -21,18 +21,20 @@ float PointToPointDistance(point_t p1, point_t p2)
  return sqrt((p1.x - p2.x)*(p1.x-p2.x) + (p1.y-p2.y)*(p1.y-p2.y) + (p1.z-p2.z)*(p1.z-p2.z));
 
 }
-sphere_t* Intersection(line_t *line)
+unsigned char Intersection(line_t *line, sphere_t* tmpSphere)
 {
   point_t p1;
   point_t tmp;
   point_t p2;
-
+  unsigned char sphereIntersected = 0;
   vector_t v1 = pointstovector(&line->p1, &line->p2);
   v1 = createunitvector(&v1);
   v1 = scalartimesvector(0.001, v1);
   tmp = vectorplusvector(v1, line->p1);
-  sphere_t *tmpSphere = NULL;
   int i;
+  tmpSphere->intersection.x = INFINITY;
+  tmpSphere->intersection.y = INFINITY;
+  tmpSphere->intersection.z = INFINITY;
   for(i = 0; i < sphereCount; i++)
   {  
     float x1 = tmp.x;
@@ -69,26 +71,34 @@ sphere_t* Intersection(line_t *line)
       {
         continue;
       }
-      if((PointToPointDistance(p1, line->p1) < PointToPointDistance(p2, line->p1)) && t1>=0)
+      if(t1>=0 && t2>=0)
       {
-        sphere[i]->intersection = p1;
+        if(PointToPointDistance(p1, line->p1) < PointToPointDistance(p2, line->p1))
+        {
+          sphere[i]->intersection = p1;
+        }
+        else
+        {
+          sphere[i]->intersection = p2;
+        }
       }
-      else if(t2>=0)  // this might be unnecessary, need to think about it more
+      else if(t1<0)
       {
         sphere[i]->intersection = p2;
       }
-      if(tmpSphere == NULL)
+      else if(t2<0)
       {
-        tmpSphere = sphere[i];
+        sphere[i]->intersection = p1;
+
       }
       if(PointToPointDistance(tmp, sphere[i]->intersection) < PointToPointDistance(tmp, tmpSphere->intersection))
       {
-        tmpSphere = sphere[i];
+        *tmpSphere = *sphere[i];
+        sphereIntersected = 1;
       }
-
     } 
   } 
-  return tmpSphere; 
+  return sphereIntersected;
 }
 float cosalpha(vector_t p1, vector_t p2)
 {

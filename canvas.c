@@ -63,8 +63,11 @@ void AddSphere(float x, float y, float z, float r, unsigned char red, unsigned c
 color_t Trace(line_t *r, char recursionDepth)
 {
   color_t color = { 0xffu, 0xffu, 0xffu};
-  sphere_t *tmpSphere = NULL;
+sphere_t localSphere;
+  sphere_t *tmpSphere = &localSphere;
+sphere_t dontCareSphere;
   int i;
+  unsigned char sphereIntersected = 0;
   float DiffuseLight = 0.0f;
   float SpecularLight = 0.0f;
   vector_t ray;
@@ -72,8 +75,8 @@ color_t Trace(line_t *r, char recursionDepth)
   vector_t sphereNormal;
 
   if(recursionDepth > MAX_RECURSION_DEPTH){return color;}
-  tmpSphere = Intersection(r); // check if ray intersects an object in the scene
-  if(tmpSphere == NULL) // no intersection
+  sphereIntersected = Intersection(r, tmpSphere); // check if ray intersects an object in the scene
+  if(sphereIntersected == 0) // no intersection
   {
     color.red = 0xff;
     color.green = 0xff;
@@ -102,7 +105,7 @@ color_t Trace(line_t *r, char recursionDepth)
       ray = pointstovector(&tmpSphere->intersection, sol[i]);
 
       //check if source of light is blocked
-      if(Intersection(pointstoline(&tmpSphere->intersection, sol[i] )) != NULL)
+      if(Intersection(pointstoline(&tmpSphere->intersection, sol[i] ),&dontCareSphere) != 0)
       {
         DiffuseLight += 0;
         SpecularLight += 0;
@@ -152,7 +155,6 @@ float DiffuseReflection(sphere_t* Sphere, vector_t ray, vector_t sphereNormal)
 {
   float diffuseLight;
   float sumDiffuseLight = 0;
-
   diffuseLight = cosalpha(ray, sphereNormal); 
   if(diffuseLight < 0)
   {

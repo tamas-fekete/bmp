@@ -24,7 +24,7 @@ typedef struct{
   point_t p2;
 }line_t; // equation of a line r = r1 + t(r2 - r1)
          // r1 = < x1, y1, z1 > ; r2 = < x2, y2, z2 > ; r = < x, y, z >
-sphere_t* Intersection(line_t *line);
+unsigned char Intersection(line_t *line, sphere_t* tmpSphere);
 vector_t createunitvector(vector_t *v);
 vector_t pointstovector(point_t *start, point_t *end);
 line_t* pointstoline(point_t *start, point_t *end);
